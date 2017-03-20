@@ -1,6 +1,8 @@
 import ast
 import re
 
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn import svm
 
 class Tweet(object):
     def __init__(self, text, time, geo):
@@ -29,6 +31,9 @@ def filter(dataset):
         print "Number of tweets unable to be parsed:", num_tweets_with_errors
 
     print 'number of hurricane tweets:', len(tweets)
+
+    return tweets
+
 
 if __name__ == "__main__":
     filter("data/irene_hurricane.txt")
