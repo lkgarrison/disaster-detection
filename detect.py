@@ -11,4 +11,4 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     filtered_tweets = filter.filter(args.tweets)
-    classify.classify(filtered_tweets)
+    relevant_tweets = classify.classify(filtered_tweets)
