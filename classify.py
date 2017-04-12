@@ -5,6 +5,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.pipeline import Pipeline
 from sklearn.pipeline import FeatureUnion
 
+NUM_LABELED_TWEETS = 300
 
 class DataFrame:
     """ a container to hold tweets and their labels
@@ -29,27 +30,40 @@ def remove_training_data_from_testing_data(training_tweets, tweets):
 
 
 def test_classifier(tweets):
-    classifier = MultinomialNB()
-    count_vectorizer = CountVectorizer(min_df=1, ngram_range=(1, 2))
+    print "Testing classifier on all labeled tweets"
 
     labeled_data = get_training_data()
-    rs = 1
-    XTrain, XTest, yTrain, yTest = train_test_split(labeled_data.tweets, labeled_data.labels, train_size=0.5, random_state=rs)
 
-    # train
-    counts = count_vectorizer.fit_transform(XTrain)
-    classifier.fit(counts, yTrain)
+    # based on the desired training size each round, calculate how many rounds
+    # of accuracy testing are needed for 100% coverage of the test data
+    train_size = 0.90
+    num_loops_for_full_coverage = int(1.0 / (1.0 - train_size))
 
-    # test
-    testing_counts = count_vectorizer.transform(XTest)
-    results = classifier.predict(testing_counts)
+    accuracy_sum = 0
+    for i in xrange(num_loops_for_full_coverage):
+        XTrain, XTest, yTrain, yTest = train_test_split(labeled_data.tweets, labeled_data.labels, train_size=train_size, random_state=i)
 
-    print "accuracy score:", accuracy_score(results, yTest)
+        pipeline = Pipeline([
+            ('features', FeatureUnion([
+                ('counts', CountVectorizer(min_df=1, ngram_range=(1, 2)))
+                # ('essay_length', LengthTransformer()),
+            ])),
+            ('classifier', MultinomialNB())
+        ])
+
+        pipeline.fit(XTrain, yTrain)
+        results = pipeline.predict(XTest)
+
+        accuracy = accuracy_score(results, yTest)
+        # print "Accuracy:", accuracy
+        accuracy_sum += accuracy
+
+    print "Classifier accuracy:", float(accuracy_sum) / num_loops_for_full_coverage
 
 
 def classify(tweets):
     training_data = get_training_data()
-    testing_tweets = [tweet.text for tweet in tweets[101:155]]
+    testing_tweets = [tweet.text for tweet in tweets[301:355]]
 
     pipeline = Pipeline([
         ('features', FeatureUnion([
@@ -64,7 +78,7 @@ def classify(tweets):
 
     relevant_tweets = list()
     for index, result in enumerate(results):
-        print result, tweets[101 + index].text
+        print result, tweets[301 + index].text
         if result == "+":
             relevant_tweets.append(tweets[index])
 
@@ -75,8 +89,6 @@ def classify(tweets):
 def get_training_data():
     count = 0
 
-    # the number of approved hurricane example tweets
-    max_count = 100
     with open("training_data.txt") as f:
         data = DataFrame()
 
@@ -92,7 +104,7 @@ def get_training_data():
 
             count += 1
 
-            if count >= max_count:
+            if count >= NUM_LABELED_TWEETS:
                 return data
 
         return data
