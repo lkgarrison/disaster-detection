@@ -1,29 +1,48 @@
 from sklearn.feature_extraction.text import CountVectorizer
-from sklearn import svm
+from sklearn.naive_bayes import MultinomialNB
+
+
+class DataFrame:
+    """ a container to hold tweets and their labels
+        the text at a given index is always matched with the label at the same index
+    """
+    def __init__(self):
+        self.tweets = list()
+        self.labels = list()
+        self._possible_labels = ['+', '-']
+
+    def add_labeled_tweet(self, tweet, label):
+        if label not in self._possible_labels:
+            print "Error: invalid label:", label
+            print "\tTweet:", tweet
+        else:
+            self.tweets.append(tweet)
+            self.labels.append(label)
+
+
+def remove_training_data_from_testing_data(training_tweets, tweets):
+    pass
 
 
 def classify(tweets):
-    training_tweets = get_training_data()
-    # split_index = int(0.3 * len(tweets))
-    # training_tweets = [tweet.text for tweet in tweets[:split_index]]
-    # testing_tweets = [tweet.text for tweet in tweets[split_index:]]
-    # training_tweets = [tweet.text for tweet in tweets[:200]]
-    testing_tweets = [tweet.text for tweet in tweets[200:500]]
+    training_data = get_training_data()
+    testing_tweets = [tweet.text for tweet in tweets[101:155]]
 
-    # outliers_fraction = 0.25
-    classifier = svm.OneClassSVM(kernel="rbf", gamma=0.1)
+    classifier = MultinomialNB()
+    count_vectorizer = CountVectorizer(min_df=1, ngram_range=(1, 2))
 
-    vectorizer = CountVectorizer(min_df=1, ngram_range=(1, 2))
-    X = vectorizer.fit_transform(training_tweets)
+    # train
+    counts = count_vectorizer.fit_transform(training_data.tweets)
+    classifier.fit(counts, training_data.labels)
 
-    classifier.fit(X)
-    X_test = vectorizer.transform(testing_tweets)
-    results = classifier.predict(X_test)
+    # test
+    testing_counts = count_vectorizer.transform(testing_tweets)
+    results = classifier.predict(testing_counts)
 
     relevant_tweets = list()
     for index, result in enumerate(results):
-        print result, tweets[index].text
-        if result > 0:
+        print result, tweets[101 + index].text
+        if result == "+":
             relevant_tweets.append(tweets[index])
 
     return relevant_tweets
@@ -31,53 +50,26 @@ def classify(tweets):
 
 # get a list of the training tweets from the training file
 def get_training_data():
-    training_data = list()
     count = 0
 
     # the number of approved hurricane example tweets
-    max_count = 125
+    max_count = 100
     with open("training_data.txt") as f:
+        data = DataFrame()
 
         for line in f:
             line = line.rstrip()
+            if len(line) == 0:
+                raise "Error: line %s is a blank line" % (count + 1)
 
-            if count > max_count:
-                return training_data
-            else:
-                training_data.append(line)
-                count += 1
+            label = line[0]
+            tweet = line[1:]
 
-        return training_data
+            data.add_labeled_tweet(tweet, label)
 
+            count += 1
 
-# outliers_fraction = 0.25
-# classifier = svm.OneClassSVM(kernel="rbf", gamma=0.1)
-# sample_of_tweets = list()
-# sample_of_tweets.append('this is a hurricane tweet')
-# sample_of_tweets.append('this is a earthquake tweet zzz zzz')
-# sample_of_tweets.append('zzz')
-# # sample_of_tweets.append('this is a flood tweet')
-# # sample_of_tweets.append('this is a tornado tweet')
-# # sample_of_tweets.append('horrible flooding in the area with high winds')
-# vectorizer = CountVectorizer(min_df=1)
-# X = vectorizer.fit_transform(sample_of_tweets)
-# print X
-# print
-# print X.toarray()
-#
-# classifier.fit(X)
-#
-# test_tweets = list()
-# test_tweets.append('this is a hurricane tweet')
-# test_tweets.append('this is a hurricane tweet')
-# test_tweets.append('this is a hurricane tweet')
-# test_tweets.append('this is a hurricane tweet')
-# test_tweets.append('there is a raging hurricane along the coast hurricane')
-# test_tweets.append('bahh bahh black sheep')
-#
-# print
-# X_test = vectorizer.transform(test_tweets)
-# print X_test
-# result = classifier.predict(X_test)
-#
-# print result
+            if count >= max_count:
+                return data
+
+        return data
