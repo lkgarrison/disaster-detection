@@ -1,3 +1,4 @@
+import random
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.model_selection import train_test_split
@@ -5,7 +6,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.pipeline import Pipeline
 from sklearn.pipeline import FeatureUnion
 
-NUM_LABELED_TWEETS = 300
+NUM_LABELED_TWEETS = 500
 
 class DataFrame:
     """ a container to hold tweets and their labels
@@ -36,12 +37,15 @@ def test_classifier(tweets):
 
     # based on the desired training size each round, calculate how many rounds
     # of accuracy testing are needed for 100% coverage of the test data
-    train_size = 0.90
+    train_size = 0.9
     num_loops_for_full_coverage = int(1.0 / (1.0 - train_size))
 
+    random.seed()
     accuracy_sum = 0
     for i in xrange(num_loops_for_full_coverage):
-        XTrain, XTest, yTrain, yTest = train_test_split(labeled_data.tweets, labeled_data.labels, train_size=train_size, random_state=i)
+        # generate a random state to make the splitting each round random
+        rs = random.randint(1, 100)
+        XTrain, XTest, yTrain, yTest = train_test_split(labeled_data.tweets, labeled_data.labels, train_size=train_size, random_state=rs)
 
         pipeline = Pipeline([
             ('features', FeatureUnion([
@@ -58,7 +62,7 @@ def test_classifier(tweets):
         # print "Accuracy:", accuracy
         accuracy_sum += accuracy
 
-    print "Classifier accuracy:", float(accuracy_sum) / num_loops_for_full_coverage
+    print "Classifier accuracy: %s%%" % (float(accuracy_sum) / num_loops_for_full_coverage * 100)
 
 
 def classify(tweets):
