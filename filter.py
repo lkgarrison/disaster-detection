@@ -1,5 +1,6 @@
 import ast
 import re
+import string
 
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn import svm
@@ -20,7 +21,9 @@ def filter(dataset):
         try:
             tweetdict = ast.literal_eval(line)
             if hurricane_re.findall(tweetdict['text']):
-                tweets.append(Tweet(tweetdict['text'], tweetdict['created_at'], tweetdict['geo']))
+                # ensure the tweet contains only printable characters
+                tweet_text = ''.join([c for c in tweetdict['text'] if c in string.printable])
+                tweets.append(Tweet(tweet_text, tweetdict['created_at'], tweetdict['geo']))
 
         except SyntaxError:
             num_tweets_with_errors += 1

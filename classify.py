@@ -2,6 +2,8 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
+from sklearn.pipeline import Pipeline
+from sklearn.pipeline import FeatureUnion
 
 
 class DataFrame:
@@ -49,16 +51,16 @@ def classify(tweets):
     training_data = get_training_data()
     testing_tweets = [tweet.text for tweet in tweets[101:155]]
 
-    classifier = MultinomialNB()
-    count_vectorizer = CountVectorizer(min_df=1, ngram_range=(1, 2))
+    pipeline = Pipeline([
+        ('features', FeatureUnion([
+            ('counts', CountVectorizer(min_df=1, ngram_range=(1, 2)))
+            # ('essay_length', LengthTransformer()),
+        ])),
+        ('classifier', MultinomialNB())
+    ])
 
-    # train
-    counts = count_vectorizer.fit_transform(training_data.tweets)
-    classifier.fit(counts, training_data.labels)
-
-    # test
-    testing_counts = count_vectorizer.transform(testing_tweets)
-    results = classifier.predict(testing_counts)
+    pipeline.fit(training_data.tweets, training_data.labels)
+    results = pipeline.predict(testing_tweets)
 
     relevant_tweets = list()
     for index, result in enumerate(results):
