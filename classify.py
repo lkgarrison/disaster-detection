@@ -6,6 +6,8 @@ from sklearn.metrics import accuracy_score
 from sklearn.pipeline import Pipeline
 from sklearn.pipeline import FeatureUnion
 
+from transformers import LengthTransformer
+
 NUM_LABELED_TWEETS = 500
 
 class DataFrame:
@@ -49,8 +51,8 @@ def test_classifier(tweets):
 
         pipeline = Pipeline([
             ('features', FeatureUnion([
-                ('counts', CountVectorizer(min_df=1, ngram_range=(1, 2)))
-                # ('essay_length', LengthTransformer()),
+                ('counts', CountVectorizer(min_df=1, ngram_range=(1, 3))),
+                ('tweet_length', LengthTransformer())
             ])),
             ('classifier', MultinomialNB())
         ])
@@ -71,8 +73,8 @@ def classify(tweets):
 
     pipeline = Pipeline([
         ('features', FeatureUnion([
-            ('counts', CountVectorizer(min_df=1, ngram_range=(1, 2)))
-            # ('essay_length', LengthTransformer()),
+            ('counts', CountVectorizer(min_df=1, ngram_range=(1, 2))),
+            ('tweet_length', LengthTransformer())
         ])),
         ('classifier', MultinomialNB())
     ])
