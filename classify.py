@@ -1,5 +1,7 @@
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.naive_bayes import MultinomialNB
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
 
 
 class DataFrame:
@@ -22,6 +24,25 @@ class DataFrame:
 
 def remove_training_data_from_testing_data(training_tweets, tweets):
     pass
+
+
+def test_classifier(tweets):
+    classifier = MultinomialNB()
+    count_vectorizer = CountVectorizer(min_df=1, ngram_range=(1, 2))
+
+    labeled_data = get_training_data()
+    rs = 1
+    XTrain, XTest, yTrain, yTest = train_test_split(labeled_data.tweets, labeled_data.labels, train_size=0.5, random_state=rs)
+
+    # train
+    counts = count_vectorizer.fit_transform(XTrain)
+    classifier.fit(counts, yTrain)
+
+    # test
+    testing_counts = count_vectorizer.transform(XTest)
+    results = classifier.predict(testing_counts)
+
+    print "accuracy score:", accuracy_score(results, yTest)
 
 
 def classify(tweets):
