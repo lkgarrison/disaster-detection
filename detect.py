@@ -1,7 +1,8 @@
+import argparse
+
+# custom python modules
 import filter
 import classify
-
-import argparse
 
 
 if __name__ == '__main__':

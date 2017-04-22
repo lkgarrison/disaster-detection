@@ -1,4 +1,6 @@
+import argparse
 import random
+
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.model_selection import train_test_split
@@ -10,11 +12,7 @@ from transformers import LengthTransformer
 from labeled_data import get_training_data
 
 
-def remove_training_data_from_testing_data(training_tweets, tweets):
-    pass
-
-
-def test_classifier(tweets):
+def test_classifier():
     print "Testing classifier on all labeled tweets"
 
     labeled_data = get_training_data()
@@ -31,13 +29,7 @@ def test_classifier(tweets):
         rs = random.randint(1, 100)
         XTrain, XTest, yTrain, yTest = train_test_split(labeled_data.tweets, labeled_data.labels, train_size=train_size, random_state=rs)
 
-        pipeline = Pipeline([
-            ('features', FeatureUnion([
-                ('counts', CountVectorizer(min_df=1, ngram_range=(1, 3))),
-                ('tweet_length', LengthTransformer())
-            ])),
-            ('classifier', MultinomialNB())
-        ])
+        pipeline = get_pipeline()
 
         pipeline.fit(XTrain, yTrain)
         results = pipeline.predict(XTest)
@@ -53,7 +45,22 @@ def classify(tweets):
     training_data = get_training_data()
     testing_tweets = map(lambda tweet: tweet.text, tweets)
 
-    pipeline = Pipeline([
+    pipeline = get_pipeline()
+
+    pipeline.fit(training_data.tweets, training_data.labels)
+    results = pipeline.predict(testing_tweets)
+
+    relevant_tweets = list()
+    for index, result in enumerate(results):
+        # print result, testing_tweets[index]
+        if result == "+":
+            relevant_tweets.append(tweets[index])
+
+    return relevant_tweets
+
+
+def get_pipeline():
+    return Pipeline([
         ('features', FeatureUnion([
             ('counts', CountVectorizer(min_df=1, ngram_range=(1, 2))),
             ('tweet_length', LengthTransformer())
@@ -61,13 +68,12 @@ def classify(tweets):
         ('classifier', MultinomialNB())
     ])
 
-    pipeline.fit(training_data.tweets, training_data.labels)
-    results = pipeline.predict(testing_tweets)
 
-    relevant_tweets = list()
-    for index, result in enumerate(results):
-        print result, testing_tweets[index]
-        if result == "+":
-            relevant_tweets.append(tweets[index])
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Classifier to classify tweets as either relevant or irrelevant')
+    parser.add_argument('-t', '--test', action='store_true', help='Flag to determine if the classifier is being run in test mode')
 
-    return relevant_tweets
+    args = parser.parse_args()
+
+    if args.test:
+        test_classifier()
