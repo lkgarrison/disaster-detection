@@ -3,6 +3,7 @@ import argparse
 # custom python modules
 import filter
 import classify
+import probabilistic_model
 
 
 if __name__ == '__main__':
@@ -13,3 +14,5 @@ if __name__ == '__main__':
 
     filtered_tweets = filter.filter(args.tweets)
     relevant_tweets = classify.classify(filtered_tweets)
+    print "%s relevant tweets" % (len(relevant_tweets))
+    probabilistic_model.predict(relevant_tweets)
