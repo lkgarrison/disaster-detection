@@ -1,4 +1,6 @@
-NUM_LABELED_TWEETS = 730
+import re
+
+NUM_LABELED_TWEETS = 800
 
 
 class DataFrame:
@@ -33,6 +35,9 @@ def get_training_data():
 
             label = line[0]
             tweet = line[1:]
+
+            # replace urls with <url>
+            # tweet = re.sub(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', '<url>', tweet)
 
             data.add_labeled_tweet(tweet, label)
 
