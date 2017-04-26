@@ -8,7 +8,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.pipeline import Pipeline
 from sklearn.pipeline import FeatureUnion
 
-from transformers import LengthTransformer
+from transformers import LengthTransformer, KeywordWeightsTransformer
 from labeled_data import get_training_data
 
 
@@ -62,8 +62,9 @@ def classify(tweets):
 def get_pipeline():
     return Pipeline([
         ('features', FeatureUnion([
-            ('counts', CountVectorizer(min_df=1, ngram_range=(1, 2))),
-            ('tweet_length', LengthTransformer())
+            ('counts', CountVectorizer(min_df=1, ngram_range=(1, 4))),
+            ('tweet_length', LengthTransformer()),
+            ('keyword_weights', KeywordWeightsTransformer(disaster_type='hurricane'))
         ])),
         ('classifier', MultinomialNB())
     ])
