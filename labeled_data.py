@@ -1,4 +1,4 @@
-NUM_LABELED_TWEETS = 500
+NUM_LABELED_TWEETS = 730
 
 
 class DataFrame:
