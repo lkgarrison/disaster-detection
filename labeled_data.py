@@ -1,6 +1,6 @@
 import re
 
-NUM_LABELED_TWEETS = 800
+NUM_LABELED_TWEETS = 920
 
 
 class DataFrame:

@@ -14,10 +14,12 @@ def plot(data):
         tweet_date = dateparser.parse(tweet.time)
 
         # create key to uniquely identify the date
-        key = ' '.join(map(str, [tweet_date.year, tweet_date.month, tweet_date.day]))
+        # key = '-'.join(map(str, [tweet_date.year, tweet_date.month, tweet_date.day]))
+        #
+        # # add the hour window to the key
+        # key += ': ' + (str(tweet_date.hour) if len(str(tweet_date.hour))
 
-        # add the hour window to the key
-        key += ' ' + str(tweet_date.hour)
+        key = tweet_date.strftime("%Y-%m-%d: %H")
 
         # hour=int(time_hms[0])
         # if hour < 1:
@@ -35,7 +37,7 @@ def plot(data):
             counts_per_time_unit[key] = 1
 
     dates = sorted(counts_per_time_unit.keys())
-    f = open("distributions/tmp.csv", "w")
+    f = open("distributions/sandy-1-v2.csv", "w")
     for key in dates:
         f.write(str(key) + "," + str(counts_per_time_unit[key]) + "\n")
 
