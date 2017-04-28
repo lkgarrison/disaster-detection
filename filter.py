@@ -50,6 +50,9 @@ def filter(dataset):
             if hurricane_re.findall(tweet_text):
                 # ensure the model isn't biased by including tweets from the training data in the test data set
                 if tweet_text not in training_tweets:
+                    # replace urls with <url>
+                    # tweet_text = re.sub(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', '<url>', tweet_text)
+
                     # ensure the tweet contains only printable characters
                     tweet_text = ''.join([c for c in tweet_text if c in string.printable])
                     filtered_tweets.append(Tweet(tweet_text, tweetdict['created_at'], tweetdict['geo']))
@@ -61,16 +64,14 @@ def filter(dataset):
         # if count >= 400:
             # break
 
-    print "finished reading in tweets"
-
     if num_tweets_with_errors > 0:
         print "Number of tweets unable to be parsed:", num_tweets_with_errors
 
-    print 'number of hurricane tweets:', len(filtered_tweets)
+    print 'Number of hurricane tweets after filtering:', len(filtered_tweets)
 
     return filtered_tweets
 
 
 if __name__ == "__main__":
-    # filter("data/hurricane-tweets.txt")
+    # filter("data/all-hurricane-tweets.txt")
     filter("data/irene_hurricane.txt")
