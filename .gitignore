@@ -1,6 +1,5 @@
 *.pyc
 *.swp
-data/
 
 /* Virtual Environment */
 bin/
