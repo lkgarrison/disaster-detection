@@ -5,7 +5,7 @@ from dateutil import parser as dateparser
 # Returns true/false if there is a disaster occurring. If true, returns the
 # hour the disaster was detected as well
 
-TWEET_PER_HOUR_THRESHOLD = 175
+TWEET_PER_HOUR_THRESHOLD = 200
 
 
 def predict(relevant_tweets):
