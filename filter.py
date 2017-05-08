@@ -1,13 +1,13 @@
+import os
+import sys
 import ast
 import re
 import string
 import json
 
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn import svm
-
 from labeled_data import get_training_data
 from keywords import disaster_keywords
+
 
 class Tweet(object):
     def __init__(self, text, time, geo):
@@ -16,7 +16,11 @@ class Tweet(object):
         self.geo = geo
 
 
-def filter(dataset):
+def filter(dataset_filename):
+    if not os.path.isfile(dataset_filename):
+        print "Dataset does not exist:", dataset_filename
+        sys.exit(1)
+
     training_tweets = set(get_training_data().tweets)
 
     filtered_tweets = []
@@ -34,7 +38,7 @@ def filter(dataset):
 
     count = 0
     num_tweets_with_errors = 0
-    for line in open(dataset, 'r'):
+    for line in open(dataset_filename, 'r'):
         try:
             # try reading in the file two different ways depending on the json format
             try:
